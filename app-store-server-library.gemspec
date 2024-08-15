@@ -7,7 +7,8 @@ Gem::Specification.new do |s|
   s.description = 'Server library for the App Store Server API and App Store Server Notifications'
   s.authors     = ['Illia Kasianenko']
   s.email       = 'i.kasianenko@gmail.com'
-  s.files       = ['lib/app_store_server_library.rb']
+  s.files       = ['lib/app-store-server-library.rb']
+  s.files       = Dir["{lib}/**/*.rb", "*.md"]
   s.homepage    = 'https://github.com/got2be/app-store-server-library'
 
   s.add_dependency 'jwt', '~> 2.8'
