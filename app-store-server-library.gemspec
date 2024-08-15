@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name        = 'app-store-server-library'
-  s.version     = '0.0.1'
+  s.version     = '0.0.2'
   s.summary     = 'App Store Server Library'
   s.description = 'Server library for the App Store Server API and App Store Server Notifications'
   s.authors     = ['Illia Kasianenko']
