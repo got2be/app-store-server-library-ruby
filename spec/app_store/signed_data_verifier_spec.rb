@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe AppStore::SignedDataVerifier do
@@ -6,11 +8,11 @@ describe AppStore::SignedDataVerifier do
 
     it 'returns a hash with the environments' do
       expect(subject).to eq({
-        sandbox: 'Sandbox',
-        production: 'Production',
-        xcode: 'Xcode',
-        local_testing: 'LocalTesting'
-      })
+                              sandbox: 'Sandbox',
+                              production: 'Production',
+                              xcode: 'Xcode',
+                              local_testing: 'LocalTesting'
+                            })
     end
   end
 
@@ -98,13 +100,15 @@ describe AppStore::SignedDataVerifier do
       let(:environment) { 'Production' }
 
       it 'raises an error if the environment' do
-        allow(instance).to receive(:verify_jwt).and_return({ 'data' => { 'bundleId' => bundle_id, 'appAppleId' => app_apple_id }, 'externalPurchaseToken' => { 'externalPurchaseId' => 'SANDBOX-123' } })
+        allow(instance).to receive(:verify_jwt).and_return({ 'data' => { 'bundleId' => bundle_id, 'appAppleId' => app_apple_id },
+                                                             'externalPurchaseToken' => { 'externalPurchaseId' => 'SANDBOX-123' } })
         expect { subject }.to raise_error(AppStore::VerificationException, 'invalid_environment')
       end
     end
 
     it 'returns the decoded JWT if verification passes' do
-      decoded_jwt = { 'data' => { 'bundleId' => bundle_id, 'appAppleId' => app_apple_id }, 'externalPurchaseToken' => { 'externalPurchaseId' => 'SANDBOX-123' } }
+      decoded_jwt = { 'data' => { 'bundleId' => bundle_id, 'appAppleId' => app_apple_id },
+                      'externalPurchaseToken' => { 'externalPurchaseId' => 'SANDBOX-123' } }
       allow(instance).to receive(:verify_jwt).and_return(decoded_jwt)
       expect(subject).to eq(decoded_jwt)
     end
@@ -114,7 +118,8 @@ describe AppStore::SignedDataVerifier do
     subject { instance.verify_and_decode_app_transaction(signed_app_transaction) }
 
     it 'raises an error if the bundleId or appAppleId do not match' do
-      allow(instance).to receive(:verify_jwt).and_return({ 'bundleId' => 'wrong_bundle_id', 'appAppleId' => 'wrong_app_apple_id', 'receiptType' => environment })
+      allow(instance).to receive(:verify_jwt).and_return({ 'bundleId' => 'wrong_bundle_id', 'appAppleId' => 'wrong_app_apple_id',
+                                                           'receiptType' => environment })
       expect { subject }.to raise_error(AppStore::VerificationException, 'invalid_app_identifier')
     end
 

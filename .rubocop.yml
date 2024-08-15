@@ -21,3 +21,9 @@ Metrics/CyclomaticComplexity:
 
 Metrics/PerceivedComplexity:
   Max: 20
+
+Naming/FileName:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
