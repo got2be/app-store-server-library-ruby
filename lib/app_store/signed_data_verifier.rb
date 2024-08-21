@@ -44,7 +44,13 @@ module AppStore
 
     def verify_and_decode_notification(signed_payload)
       decoded_jwt = verify_jwt(signed_payload)
-      app_apple_id, bundle_id, environment = extract_info(decoded_jwt)
+      payload = decoded_jwt['data'] || decoded_jwt['summary'] || decoded_jwt['externalPurchaseToken']
+      app_apple_id = payload['appAppleId']
+      bundle_id = payload['bundleId']
+      environment = payload['environment']
+      if payload['externalPurchaseId']
+        environment = payload['externalPurchaseId']&.start_with?('SANDBOX') ? ENVIRONMENTS[:sandbox] : ENVIRONMENTS[:production]
+      end
       verify_notification(bundle_id, app_apple_id, environment)
       decoded_jwt
     end
@@ -77,7 +83,7 @@ module AppStore
 
       payload
     rescue JWT::DecodeError, JWT::VerificationError => e
-      raise VerificationException.new(:verification_failure, e)
+      raise VerificationException, :verification_failure
     end
 
     def verify_certificate_chain(trusted_roots, leaf, intermediate, effective_date)
@@ -108,21 +114,6 @@ module AppStore
       return unless valid_from > effective_date + MAX_SKEW || valid_to < effective_date - MAX_SKEW
 
       raise VerificationException, :invalid_certificate
-    end
-
-    def extract_info(decoded_jwt)
-      app_apple_id = decoded_jwt.dig('data', 'appAppleId') ||
-                     decoded_jwt.dig('summary', 'appAppleId') ||
-                     decoded_jwt.dig('externalPurchaseToken', 'appAppleId')
-      bundle_id = decoded_jwt.dig('data', 'bundleId') ||
-                  decoded_jwt.dig('summary', 'bundleId') ||
-                  decoded_jwt.dig('externalPurchaseToken', 'bundleId')
-      environment = if decoded_jwt.dig('externalPurchaseToken', 'externalPurchaseId')&.start_with?('SANDBOX')
-                      ENVIRONMENTS[:sandbox]
-                    else
-                      ENVIRONMENTS[:production]
-                    end
-      [app_apple_id, bundle_id, environment]
     end
 
     def verify_notification(bundle_id, app_apple_id, environment)
